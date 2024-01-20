@@ -5,6 +5,7 @@ WORKDIR /app
 RUN npm install
 RUN npm install express
 RUN npm install request
+RUN npm install mysql
 
 COPY . .
 
