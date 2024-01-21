@@ -5,6 +5,10 @@ const mysql = require('mysql');
 const path = require('path');
 const app = express();
 const port = 3000;
+const fs = require('fs');
+const path = require('path');
+const rapidApiKeyPath = path.join(__dirname, 'key.txt');
+const rapidApiKey = fs.readFileSync(rapidApiKeyPath, 'utf8').trim();
 
 app.use(bodyParser.json());
 
@@ -34,7 +38,7 @@ app.post('/translate', (req, res) => {
         url: 'https://text-translator2.p.rapidapi.com/translate',
         headers: {
             'content-type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': 'XXX',
+            'X-RapidAPI-Key': rapidApiKey,
             'X-RapidAPI-Host': 'text-translator2.p.rapidapi.com'
         },
         form: {
