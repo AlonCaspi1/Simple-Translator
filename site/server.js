@@ -1,11 +1,26 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
-const path = require('path'); // Added path module
+const mysql = require('mysql');
+const path = require('path');
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
+
+// MySQL connection pool configuration
+const pool = mysql.createPool({
+    host: 'docker-mysql1',
+    user: 'root',
+    password: 'abc123',
+    database: 'translations',
+    connectionLimit: 10,
+});
+
+// Handle database errors
+pool.on('error', (err) => {
+    console.error('MySQL pool error:', err);
+});
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -19,7 +34,7 @@ app.post('/translate', (req, res) => {
         url: 'https://text-translator2.p.rapidapi.com/translate',
         headers: {
             'content-type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': 'XXX', // Replace with your actual API key
+            'X-RapidAPI-Key': 'XXX',
             'X-RapidAPI-Host': 'text-translator2.p.rapidapi.com'
         },
         form: {
@@ -36,8 +51,9 @@ app.post('/translate', (req, res) => {
         } else if (response.statusCode === 200) {
             const translationResult = JSON.parse(body).data.translatedText;
 
-            // Instead of redirecting on the client side, send a response to the client
-            // with the translation result and let the client handle the display
+            // Save the translation result to the MySQL database using the connection pool
+            saveToDatabase(sourceLanguage, targetLanguage, textInput, translationResult);
+
             res.json({ translationResult });
         } else {
             console.error('Translation API error:', response.statusCode, body);
@@ -46,7 +62,6 @@ app.post('/translate', (req, res) => {
     });
 });
 
-// Serve the results.html file
 app.get('/results', (req, res) => {
     res.sendFile(path.join(__dirname, 'results.html'));
 });
@@ -54,3 +69,26 @@ app.get('/results', (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
+
+function saveToDatabase(sourceLanguage, targetLanguage, textInput, translationResult) {
+    // Use the connection pool to execute the database query
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error acquiring connection from pool:', err);
+            return;
+        }
+
+        const sql = 'INSERT INTO requests (sourcelanguage, targetlanguage, textinput, textoutput) VALUES (?, ?, ?, ?)';
+        const values = [sourceLanguage, targetLanguage, textInput, translationResult];
+
+        connection.query(sql, values, (queryErr, result) => {
+            connection.release(); // Release the connection back to the pool
+
+            if (queryErr) {
+                console.error('Error executing database query:', queryErr);
+            } else {
+                console.log('Translation result saved to the database');
+            }
+        });
+    });
+}
