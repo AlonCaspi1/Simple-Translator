@@ -9,8 +9,8 @@ RUN npm install mysql
 RUN npm install path
 RUN npm install dotenv
 
-COPY . .
-COPY ../Docker/.env .
+COPY /site .
+COPY /Docker/.env .
 
 EXPOSE 3000
 
