@@ -8,19 +8,21 @@ const port = 3000;
 const fs = require('fs');
 const rapidApiKeyPath = path.join(__dirname, 'key.txt');
 const rapidApiKey = fs.readFileSync(rapidApiKeyPath, 'utf8').trim();
+const dotenv = require('dotenv');
+require('dotenv').config({ path: '../Docker.env' });
+
 
 app.use(bodyParser.json());
 
-// MySQL connection pool configuration
 const pool = mysql.createPool({
     host: 'docker-mysql1',
     user: 'root',
-    password: 'abc123',
+    password: process.env.MYSQL_ROOT_PASSWORD,
     database: 'translations',
     connectionLimit: 10,
 });
 
-// Handle database errors
+
 pool.on('error', (err) => {
     console.error('MySQL pool error:', err);
 });
