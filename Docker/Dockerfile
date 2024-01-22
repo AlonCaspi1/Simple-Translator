@@ -7,8 +7,10 @@ RUN npm install express
 RUN npm install request
 RUN npm install mysql
 RUN npm install path
+RUN npm install dotenv
 
-COPY . .
+COPY /site .
+COPY /Docker/.env .
 
 EXPOSE 3000
 

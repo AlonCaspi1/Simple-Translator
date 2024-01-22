@@ -1,10 +1,9 @@
 # Simple-Translator
-Enter you rapid API key in the key.txt
-To build the Docker image run in the site folder:
-docker build -t simple-translator .
-In the Docker folder create a .env file with the following enviromenl variable:
-MYSQL_ROOT_PASSWORD=Your-Password-Here
-Then run: docker-compose up -d 
+Enter you rapid API key in the /site/key.txt
+Edit the /Docker/.env with a mysql password of your choise.
+To build the Docker image run in the project main folder:
+docker build -t simple-translator -f Docker/Dockerfile .
+Then run in /Docker docker-compose up -d 
 The site is accessible via:
 http://localhost:3000/
 
