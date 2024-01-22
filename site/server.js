@@ -9,7 +9,7 @@ const fs = require('fs');
 const rapidApiKeyPath = path.join(__dirname, 'key.txt');
 const rapidApiKey = fs.readFileSync(rapidApiKeyPath, 'utf8').trim();
 const dotenv = require('dotenv');
-require('dotenv').config({ path: '../Docker.env' });
+require('dotenv').config({ path: '../Docker/.env' });
 
 
 app.use(bodyParser.json());
